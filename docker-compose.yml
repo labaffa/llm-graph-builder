@@ -7,8 +7,6 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     volumes:
-      - ./backend:/code
-      - ./personal:/personal
       - ~/.config/gcloud:/root/.config/gcloud:ro
     env_file:
       - ./backend/.env
@@ -71,9 +69,6 @@ services:
         - VITE_TOKENS_PER_CHUNK=${VITE_TOKENS_PER_CHUNK-}
         - VITE_CHUNK_TO_COMBINE=${VITE_CHUNK_TO_COMBINE-}
         - DEPLOYMENT_ENV=local
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     env_file:
       - ./frontend/.env
     container_name: frontend
