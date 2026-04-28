@@ -27,7 +27,7 @@ import { filterData, getCheckboxConditions, graphTypeFromNodes, processGraphData
 import { useCredentials } from '../../context/UserCredentials';
 
 import { getGraphSchema, graphQueryAPI } from '../../services/GraphQuery';
-import { graphLabels, nvlOptions, queryMap } from '../../utils/Constants';
+import { GRAPH_PREVIEW_DOC_BATCH_SIZE, graphLabels, nvlOptions, queryMap } from '../../utils/Constants';
 import CheckboxSelection from './CheckboxSelection';
 
 import ResultOverview from './ResultOverview';
@@ -121,13 +121,54 @@ const GraphViewModal: React.FunctionComponent<GraphViewModalProps> = ({
   const fetchData = useCallback(async () => {
     graphQueryAbortControllerRef.current = new AbortController();
     try {
+      const chunkArray = <T,>(arr: T[], size: number): T[][] => {
+        const chunks: T[][] = [];
+        for (let i = 0; i < arr.length; i += size) {
+          chunks.push(arr.slice(i, i + size));
+        }
+        return chunks;
+      };
+
       let nodeRelationshipData;
       if (viewPoint === graphLabels.showGraphView) {
-        nodeRelationshipData = await graphQueryAPI(
-          graphQuery,
-          selectedRows?.map((f) => f.name),
-          graphQueryAbortControllerRef.current.signal
-        );
+        const selectedDocNames = (selectedRows?.map((f) => f.name).filter(Boolean) as string[]) ?? [];
+        if (selectedDocNames.length > GRAPH_PREVIEW_DOC_BATCH_SIZE) {
+          const docBatches = chunkArray(selectedDocNames, GRAPH_PREVIEW_DOC_BATCH_SIZE);
+          const mergedNodes = new Map<string, any>();
+          const mergedRelationships = new Map<string, any>();
+
+          for (const batch of docBatches) {
+            const batchResult = await graphQueryAPI(graphQuery, batch, graphQueryAbortControllerRef.current.signal);
+            const batchNodes = batchResult?.data?.data?.nodes ?? [];
+            const batchRelationships = batchResult?.data?.data?.relationships ?? [];
+
+            for (const node of batchNodes) {
+              if (node?.element_id) {
+                mergedNodes.set(node.element_id, node);
+              }
+            }
+            for (const relationship of batchRelationships) {
+              if (relationship?.element_id) {
+                mergedRelationships.set(relationship.element_id, relationship);
+              }
+            }
+          }
+
+          nodeRelationshipData = {
+            data: {
+              data: {
+                nodes: Array.from(mergedNodes.values()),
+                relationships: Array.from(mergedRelationships.values()),
+              },
+            },
+          };
+        } else {
+          nodeRelationshipData = await graphQueryAPI(
+            graphQuery,
+            selectedDocNames,
+            graphQueryAbortControllerRef.current.signal
+          );
+        }
       } else if (viewPoint === graphLabels.showSchemaView) {
         nodeRelationshipData = await getGraphSchema();
       } else {

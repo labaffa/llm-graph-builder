@@ -29,6 +29,7 @@ import {
   tokenchunkSize,
   chunkOverlap,
   chunksToCombine,
+  EXPLORER_MODE,
   SKIP_AUTH,
 } from '../utils/Constants';
 import ButtonWithToolTip from './UI/ButtonWithToolTip';
@@ -963,24 +964,26 @@ const Content: React.FC<ContentProps> = ({
             </Typography>
           </div>
           <div className='enhancement-btn__wrapper'>
-            <ButtonWithToolTip
-              placement='top'
-              text={
-                !isAuthenticated
-                  ? 'Please log in first'
-                  : !connectionStatus
-                    ? 'Please connect to Neo4j'
-                    : 'Enhance graph quality'
-              }
-              label='Graph Enhancement Settings'
-              className='mr-2!'
-              onClick={toggleEnhancementDialog}
-              disabled={!connectionStatus || isReadOnlyUser}
-              size={isTablet ? 'small' : 'medium'}
-              alwaysShowTooltip={true}
-            >
-              Graph Settings
-            </ButtonWithToolTip>
+            {!EXPLORER_MODE && (
+              <ButtonWithToolTip
+                placement='top'
+                text={
+                  !isAuthenticated
+                    ? 'Please log in first'
+                    : !connectionStatus
+                      ? 'Please connect to Neo4j'
+                      : 'Enhance graph quality'
+                }
+                label='Graph Enhancement Settings'
+                className='mr-2!'
+                onClick={toggleEnhancementDialog}
+                disabled={!connectionStatus || isReadOnlyUser}
+                size={isTablet ? 'small' : 'medium'}
+                alwaysShowTooltip={true}
+              >
+                Graph Settings
+              </ButtonWithToolTip>
+            )}
             {!connectionStatus ? (
               <SpotlightTarget id='connectbutton' hasPulse={!connectDisabled} indicatorVariant='border'>
                 <ButtonWithToolTip
@@ -1037,50 +1040,56 @@ const Content: React.FC<ContentProps> = ({
 
         <Flex className={`p-2.5  mt-1.5 absolute bottom-0 w-full`} justifyContent='space-between' flexDirection={'row'}>
           <div>
-            <DropdownComponent
-              onSelect={handleDropdownChange}
-              options={llms ?? ['']}
-              placeholder='Select LLM Model'
-              defaultValue={model}
-              view='ContentView'
-              isDisabled={false}
-            />
+            {!EXPLORER_MODE && (
+              <DropdownComponent
+                onSelect={handleDropdownChange}
+                options={llms ?? ['']}
+                placeholder='Select LLM Model'
+                defaultValue={model}
+                view='ContentView'
+                isDisabled={false}
+              />
+            )}
           </div>
           <Flex flexDirection='row' gap='4' className='self-end mb-2.5' flexWrap='wrap'>
-            <SpotlightTarget id='generategraphbtn'>
+            {!EXPLORER_MODE && (
+              <SpotlightTarget id='generategraphbtn'>
+                <ButtonWithToolTip
+                  text={!isAuthenticated ? 'Please log in first' : tooltips.generateGraph}
+                  placement='top'
+                  label='generate graph'
+                  onClick={onClickHandler}
+                  disabled={disableCheck || isReadOnlyUser}
+                  className='mr-0.5'
+                  size={isTablet ? 'small' : 'medium'}
+                  alwaysShowTooltip={true}
+                >
+                  {buttonCaptions.generateGraph}{' '}
+                  {selectedfileslength && !disableCheck && newFilecheck ? `(${newFilecheck})` : ''}
+                </ButtonWithToolTip>
+              </SpotlightTarget>
+            )}
+            {!EXPLORER_MODE && (
               <ButtonWithToolTip
-                text={!isAuthenticated ? 'Please log in first' : tooltips.generateGraph}
+                text={
+                  !isAuthenticated
+                    ? 'Please log in first'
+                    : !selectedfileslength
+                      ? 'Please select file to delete'
+                      : `${selectedfileslength} ${tooltips.deleteSelectedFiles}`
+                }
                 placement='top'
-                label='generate graph'
-                onClick={onClickHandler}
-                disabled={disableCheck || isReadOnlyUser}
-                className='mr-0.5'
+                onClick={() => setShowDeletePopUp(true)}
+                disabled={!selectedfileslength || isReadOnlyUser}
+                className='ml-0.5'
+                label='Delete Files'
                 size={isTablet ? 'small' : 'medium'}
                 alwaysShowTooltip={true}
               >
-                {buttonCaptions.generateGraph}{' '}
-                {selectedfileslength && !disableCheck && newFilecheck ? `(${newFilecheck})` : ''}
+                {buttonCaptions.deleteFiles}
+                {selectedfileslength != undefined && selectedfileslength > 0 && `(${selectedfileslength})`}
               </ButtonWithToolTip>
-            </SpotlightTarget>
-            <ButtonWithToolTip
-              text={
-                !isAuthenticated
-                  ? 'Please log in first'
-                  : !selectedfileslength
-                    ? 'Please select file to delete'
-                    : `${selectedfileslength} ${tooltips.deleteSelectedFiles}`
-              }
-              placement='top'
-              onClick={() => setShowDeletePopUp(true)}
-              disabled={!selectedfileslength || isReadOnlyUser}
-              className='ml-0.5'
-              label='Delete Files'
-              size={isTablet ? 'small' : 'medium'}
-              alwaysShowTooltip={true}
-            >
-              {buttonCaptions.deleteFiles}
-              {selectedfileslength != undefined && selectedfileslength > 0 && `(${selectedfileslength})`}
-            </ButtonWithToolTip>
+            )}
             <SpotlightTarget id='visualizegraphbtn'>
               <Flex flexDirection='row' gap='0'>
                 <ButtonWithToolTip

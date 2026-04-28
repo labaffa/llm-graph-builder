@@ -13,6 +13,7 @@ export const llms =
     ? (import.meta.env.VITE_LLM_MODELS?.split(',') as string[])
     : [
         'gemini_2.5_flash',
+        'openai_gpt_5_nano',
         'openai_gpt_5.2',
         'openai_gpt_5_mini',
         'gemini_2.5_pro',
@@ -33,7 +34,7 @@ export const llms =
 export const prodllms =
   import.meta.env.VITE_LLM_MODELS_PROD?.trim() != ''
     ? (import.meta.env.VITE_LLM_MODELS_PROD?.split(',') as string[])
-    : ['gemini_2.5_flash', 'openai_gpt_5_mini', 'diffbot', 'anthropic_claude_4.5_haiku'];
+    : ['gemini_2.5_flash', 'openai_gpt_5_nano', 'openai_gpt_5_mini', 'diffbot', 'anthropic_claude_4.5_haiku'];
 
 export const chatModeLables = {
   vector: 'vector',
@@ -218,7 +219,13 @@ export const tooltips = {
   predinedSchema: 'Predefined Schema',
   dataImporterJson: 'Data Importer JSON',
 };
-export const PRODMODELS = ['gemini_2.5_flash', 'openai_gpt_5_mini', 'diffbot', 'anthropic_claude_4.5_haiku'];
+export const PRODMODELS = [
+  'gemini_2.5_flash',
+  'openai_gpt_5_nano',
+  'openai_gpt_5_mini',
+  'diffbot',
+  'anthropic_claude_4.5_haiku',
+];
 export const buttonCaptions = {
   exploreGraphWithBloom: 'Explore Graph',
   showPreviewGraph: 'Preview Graph',
@@ -446,6 +453,9 @@ export const metricsinfo: Record<string, string> = {
 };
 export const EXPIRATION_DAYS = 3;
 export const SKIP_AUTH = (import.meta.env.VITE_SKIP_AUTH ?? 'true') == 'true';
+export const EXPLORER_MODE = (import.meta.env.VITE_EXPLORER_MODE ?? 'false') === 'true';
+export const GRAPH_PREVIEW_TIMEOUT_MS = Number(import.meta.env.VITE_GRAPH_PREVIEW_TIMEOUT_MS ?? '300000');
+export const GRAPH_PREVIEW_DOC_BATCH_SIZE = Number(import.meta.env.VITE_GRAPH_PREVIEW_DOC_BATCH_SIZE ?? '8');
 
 export const sourceOptions: PatternOption[] = [{ label: 'Person', value: 'Person' }];
 export const typeOptions: PatternOption[] = [{ label: 'WORKS_FOR', value: 'WORKS_FOR' }];

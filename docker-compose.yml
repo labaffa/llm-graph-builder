@@ -1,12 +1,29 @@
 version: "3"
 
 services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    gpus: all
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    networks:
+      - net
+
   backend:
+    depends_on:
+      - ollama
     build:
       context: ./backend
       dockerfile: Dockerfile
     volumes:
       - ./backend:/code
+      - ./personal:/personal
       - ~/.config/gcloud:/root/.config/gcloud:ro
     env_file:
       - ./backend/.env
@@ -30,6 +47,7 @@ services:
       - MAX_TOKEN_CHUNK_SIZE=${MAX_TOKEN_CHUNK_SIZE-}
       - GOOGLE_APPLICATION_CREDENTIALS=/root/.config/gcloud/application_default_credentials.json
       - GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT-}
+      - EXPLORER_MODE=${EXPLORER_MODE-false}
     container_name: backend
     extra_hosts:
       - host.docker.internal:host-gateway
@@ -60,6 +78,9 @@ services:
         - VITE_AUTH0_DOMAIN=${VITE_AUTH0_DOMAIN-}
         - VITE_AUTH0_CLIENT_ID=${VITE_AUTH0_CLIENT_ID-}
         - VITE_SKIP_AUTH=${VITE_SKIP_AUTH-true}
+        - VITE_EXPLORER_MODE=${VITE_EXPLORER_MODE-false}
+        - VITE_GRAPH_PREVIEW_TIMEOUT_MS=${VITE_GRAPH_PREVIEW_TIMEOUT_MS-300000}
+        - VITE_GRAPH_PREVIEW_DOC_BATCH_SIZE=${VITE_GRAPH_PREVIEW_DOC_BATCH_SIZE-8}
         - VITE_CHUNK_OVERLAP=${VITE_CHUNK_OVERLAP-}
         - VITE_TOKENS_PER_CHUNK=${VITE_TOKENS_PER_CHUNK-}
         - VITE_CHUNK_TO_COMBINE=${VITE_CHUNK_TO_COMBINE-}
@@ -77,3 +98,6 @@ services:
 
 networks:
   net:
+
+volumes:
+  ollama:

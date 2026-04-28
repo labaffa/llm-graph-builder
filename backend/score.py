@@ -11,6 +11,7 @@ from typing import List
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, File, Form, Request, UploadFile
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi_health import health
@@ -51,6 +52,21 @@ load_dotenv(override=True)
 logger = CustomLogger()
 CHUNK_DIR = os.path.join(os.path.dirname(__file__), "chunks")
 MERGED_DIR = os.path.join(os.path.dirname(__file__), "merged_files")
+
+EXPLORER_MODE_WRITE_BLOCKED_ENDPOINTS = {
+    "/url/scan",
+    "/extract",
+    "/post_processing",
+    "/upload",
+    "/delete_document_and_entities",
+    "/cancelled_job",
+    "/populate_graph_schema",
+    "/delete_unconnected_nodes",
+    "/merge_duplicate_nodes",
+    "/drop_create_vector_index",
+    "/retry_processing",
+    "/change_embedding_model",
+}
 
 
 def sanitize_filename(filename: str) -> str:
@@ -131,6 +147,25 @@ app.add_middleware(
 )
 app.add_middleware(SessionMiddleware, secret_key=os.urandom(24))
 app.add_api_route("/health", health([healthy_condition, healthy]))
+
+
+@app.middleware("http")
+async def explorer_mode_write_guard(request: Request, call_next):
+    is_explorer_mode = get_value_from_env("EXPLORER_MODE", "False", bool)
+    if (
+        is_explorer_mode
+        and request.method in {"POST", "PUT", "PATCH", "DELETE"}
+        and request.url.path in EXPLORER_MODE_WRITE_BLOCKED_ENDPOINTS
+    ):
+        message = (
+            f"Explorer mode is enabled. Write operation '{request.url.path}' is blocked. "
+            "Disable EXPLORER_MODE to re-enable data ingestion and mutation endpoints."
+        )
+        return JSONResponse(
+            status_code=403,
+            content=create_api_response("Failed", message=message, error=message),
+        )
+    return await call_next(request)
 
 
 @app.post("/url/scan")
@@ -1250,4 +1285,3 @@ async def change_embedding_model(
 
 if __name__ == "__main__":
     uvicorn.run(app)
-

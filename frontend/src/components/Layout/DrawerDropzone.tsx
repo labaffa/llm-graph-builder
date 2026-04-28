@@ -7,7 +7,7 @@ import CustomAlert from '../UI/Alert';
 import FallBackDialog from '../UI/FallBackDialog';
 import { useAlertContext } from '../../context/Alert';
 import { useCredentials } from '../../context/UserCredentials';
-import { APP_SOURCES } from '../../utils/Constants';
+import { APP_SOURCES, EXPLORER_MODE } from '../../utils/Constants';
 import GenericButton from '../WebSources/GenericSourceButton';
 import GenericModal from '../WebSources/GenericSourceModal';
 import { DrawerProps } from '../../types';
@@ -42,7 +42,7 @@ const DrawerDropzone: React.FC<DrawerProps> = ({
     () => APP_SOURCES.includes('web') && !APP_SOURCES.includes('youtube') && !APP_SOURCES.includes('wiki'),
     []
   );
-  if (!isLargeDesktop) {
+  if (!isLargeDesktop || EXPLORER_MODE) {
     return null;
   }
   return (

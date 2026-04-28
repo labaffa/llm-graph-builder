@@ -16,7 +16,7 @@ import { createPortal } from 'react-dom';
 import { useMessageContext } from '../../context/UserMessages';
 import { downloadClickHandler, getIsLoading } from '../../utils/Utils';
 import ExpandedChatButtonContainer from '../ChatBot/ExpandedChatButtonContainer';
-import { APP_SOURCES, tooltips } from '../../utils/Constants';
+import { APP_SOURCES, EXPLORER_MODE, tooltips } from '../../utils/Constants';
 import ChatModeToggle from '../ChatBot/ChatModeToggle';
 import { RiChatSettingsLine } from 'react-icons/ri';
 import { IconButtonWithToolTip } from '../UI/IconButtonToolTip';
@@ -78,6 +78,9 @@ const SideNav: React.FC<SideNavProps> = ({
   };
 
   const renderDataSourceItems = () => {
+    if (EXPLORER_MODE) {
+      return [];
+    }
     const dataSourceItems = [];
 
     if (!isLargeDesktop && position === 'left') {
@@ -160,7 +163,7 @@ const SideNav: React.FC<SideNavProps> = ({
               }
             />
           )}
-          {!isExpanded && position === 'left' && isLargeDesktop && (
+          {!EXPLORER_MODE && !isExpanded && position === 'left' && isLargeDesktop && (
             <SideNavigation.Item
               htmlAttributes={{ onClick: handleClick }}
               icon={

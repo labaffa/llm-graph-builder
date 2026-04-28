@@ -1,4 +1,5 @@
 import api from '../API/Index';
+import { GRAPH_PREVIEW_TIMEOUT_MS } from '../utils/Constants';
 
 export const graphQueryAPI = async (
   query_type: string,
@@ -15,7 +16,7 @@ export const graphQueryAPI = async (
         'Content-Type': 'multipart/form-data',
       },
       signal,
-      timeout: 120000,
+      timeout: GRAPH_PREVIEW_TIMEOUT_MS,
     });
     return response;
   } catch (error) {
