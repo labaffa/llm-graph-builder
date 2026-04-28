@@ -82,8 +82,15 @@ const Content: React.FC<ContentProps> = ({
   const [showConfirmationModal, setShowConfirmationModal] = useState<boolean>(false);
   const [showExpirationModal, setShowExpirationModal] = useState<boolean>(false);
   const [extractLoading, setIsExtractLoading] = useState<boolean>(false);
-  const { setUserCredentials, userCredentials, setConnectionStatus, isGdsActive, isReadOnlyUser, isGCSActive } =
-    useCredentials();
+  const {
+    setUserCredentials,
+    userCredentials,
+    setConnectionStatus,
+    isGdsActive,
+    isReadOnlyUser,
+    isGCSActive,
+    isConnectionInitializing,
+  } = useCredentials();
   const [retryFile, setRetryFile] = useState<string>('');
   const [retryLoading, setRetryLoading] = useState<boolean>(false);
   const [showRetryPopup, toggleRetryPopup] = useReducer((state) => !state, false);
@@ -942,12 +949,16 @@ const Content: React.FC<ContentProps> = ({
           <div className='connectionstatus__container'>
             <span className='h6 px-1'>Neo4j connection {isReadOnlyUser ? '(Read only Mode)' : ''}</span>
             <Typography variant='body-medium'>
-              <DatabaseStatusIcon
-                isConnected={connectionStatus}
-                isGdsActive={isGdsActive}
-                uri={userCredentials?.uri}
-                database={userCredentials?.database}
-              />
+              {isConnectionInitializing ? (
+                <span className='n-body-small'>Connecting...</span>
+              ) : (
+                <DatabaseStatusIcon
+                  isConnected={connectionStatus}
+                  isGdsActive={isGdsActive}
+                  uri={userCredentials?.uri}
+                  database={userCredentials?.database}
+                />
+              )}
               <div className='pt-1 flex! gap-1 items-center'>
                 <div>{!hasSelections ? <StatusIndicator type='danger' /> : <StatusIndicator type='success' />}</div>
                 <div>
@@ -956,8 +967,9 @@ const Content: React.FC<ContentProps> = ({
                       {hasSelections} Graph Schema configured
                       {hasSelections ? `(${selectedNodes.length} Labels + ${selectedRels.length} Rel Types)` : ''}
                     </span>
-                  ) : (
+                  ) : !EXPLORER_MODE ? (
                     <span className='n-body-small'>No Graph Schema configured</span>
+                  ) : null
                   )}
                 </div>
               </div>

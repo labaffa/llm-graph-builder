@@ -17,6 +17,8 @@ export const UserConnection = createContext<ContextProps>({
   setIsReadOnlyUser: () => null,
   isBackendConnected: false,
   setIsBackendConnected: () => null,
+  isConnectionInitializing: false,
+  setIsConnectionInitializing: () => null,
   errorMessage: '',
   setErrorMessage: () => null,
   showDisconnectButton: false,
@@ -36,6 +38,7 @@ const UserCredentialsWrapper: FunctionComponent<Props> = (props) => {
   const [isReadOnlyUser, setIsReadOnlyUser] = useState<boolean>(false);
   const [connectionStatus, setConnectionStatus] = useState<boolean>(false);
   const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
+  const [isConnectionInitializing, setIsConnectionInitializing] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [showDisconnectButton, setShowDisconnectButton] = useState<boolean>(false);
   const [isGCSActive, setIsGCSActive] = useState<boolean>(false);
@@ -51,6 +54,8 @@ const UserCredentialsWrapper: FunctionComponent<Props> = (props) => {
     setIsReadOnlyUser,
     isBackendConnected,
     setIsBackendConnected,
+    isConnectionInitializing,
+    setIsConnectionInitializing,
     errorMessage,
     setErrorMessage,
     showDisconnectButton,

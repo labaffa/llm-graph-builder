@@ -779,6 +779,8 @@ export interface ContextProps {
   setConnectionStatus: Dispatch<SetStateAction<boolean>>;
   isBackendConnected: boolean;
   setIsBackendConnected: Dispatch<SetStateAction<boolean>>;
+  isConnectionInitializing: boolean;
+  setIsConnectionInitializing: Dispatch<SetStateAction<boolean>>;
   errorMessage: string;
   setErrorMessage: Dispatch<SetStateAction<string>>;
   showDisconnectButton: boolean;

@@ -167,6 +167,7 @@ const PageLayout: React.FC = () => {
     setConnectionStatus,
     setGdsActive,
     setIsBackendConnected,
+    setIsConnectionInitializing,
     setUserCredentials,
     setErrorMessage,
     setShowDisconnectButton,
@@ -260,6 +261,7 @@ const PageLayout: React.FC = () => {
 
   useEffect(() => {
     async function initializeConnection() {
+      setIsConnectionInitializing(true);
       // Fetch backend health status
       try {
         const response = await healthStatus();
@@ -339,6 +341,8 @@ const PageLayout: React.FC = () => {
         if (error instanceof Error) {
           showErrorToast(error.message);
         }
+      } finally {
+        setIsConnectionInitializing(false);
       }
     }
     initializeConnection();
