@@ -969,8 +969,7 @@ const Content: React.FC<ContentProps> = ({
                     </span>
                   ) : !EXPLORER_MODE ? (
                     <span className='n-body-small'>No Graph Schema configured</span>
-                  ) : null
-                  )}
+                  ) : null}
                 </div>
               </div>
             </Typography>
