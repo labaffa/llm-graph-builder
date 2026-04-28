@@ -16,7 +16,7 @@ import { envConnectionAPI } from '../../services/ConnectAPI';
 import { healthStatus } from '../../services/HealthStatus';
 import { useAuth0 } from '@auth0/auth0-react';
 import { showErrorToast } from '../../utils/Toasts';
-import { APP_SOURCES } from '../../utils/Constants';
+import { APP_SOURCES, EXPLORER_MODE } from '../../utils/Constants';
 import { createDefaultFormData } from '../../API/Index';
 import LoadDBSchemaDialog from '../Popups/GraphEnhancementDialog/EnitityExtraction/LoadExistingSchema';
 import PredefinedSchemaDialog from '../Popups/GraphEnhancementDialog/EnitityExtraction/PredefinedSchemaDialog';
@@ -346,7 +346,7 @@ const PageLayout: React.FC = () => {
       setActiveSpotlight('loginbutton');
     }
 
-    if ((isAuthenticated || SKIP_AUTH) && isFirstTimeUser) {
+    if (!EXPLORER_MODE && (isAuthenticated || SKIP_AUTH) && isFirstTimeUser) {
       setActiveSpotlight('connectbutton');
     }
   }, [isAuthenticated, isFirstTimeUser]);
@@ -569,7 +569,7 @@ const PageLayout: React.FC = () => {
 
   return (
     <>
-      {!isAuthenticated && !SKIP_AUTH && isFirstTimeUser ? (
+      {!EXPLORER_MODE && !isAuthenticated && !SKIP_AUTH && isFirstTimeUser ? (
         <SpotlightTour
           spotlights={spotlightsforunauthenticated}
           onAction={(target, action) => {
@@ -584,7 +584,7 @@ const PageLayout: React.FC = () => {
             console.log(`Action ${action} was performed in spotlight ${target}`);
           }}
         />
-      ) : (isAuthenticated || SKIP_AUTH) && isFirstTimeUser ? (
+      ) : !EXPLORER_MODE && (isAuthenticated || SKIP_AUTH) && isFirstTimeUser ? (
         <SpotlightTour
           spotlights={spotlights}
           onAction={(target, action) => {
@@ -601,16 +601,18 @@ const PageLayout: React.FC = () => {
         />
       ) : null}
 
-      <Suspense fallback={<FallBackDialog />}>
-        <ConnectionModal
-          open={openConnection.openPopUp}
-          setOpenConnection={setOpenConnection}
-          setConnectionStatus={setConnectionStatus}
-          isVectorIndexMatch={openConnection.vectorIndexMisMatch}
-          chunksExistsWithoutEmbedding={openConnection.chunksExists}
-          chunksExistsWithDifferentEmbedding={openConnection.chunksExistsWithDifferentDimension}
-        />
-      </Suspense>
+      {!EXPLORER_MODE && (
+        <Suspense fallback={<FallBackDialog />}>
+          <ConnectionModal
+            open={openConnection.openPopUp}
+            setOpenConnection={setOpenConnection}
+            setConnectionStatus={setConnectionStatus}
+            isVectorIndexMatch={openConnection.vectorIndexMisMatch}
+            chunksExistsWithoutEmbedding={openConnection.chunksExists}
+            chunksExistsWithDifferentEmbedding={openConnection.chunksExistsWithDifferentDimension}
+          />
+        </Suspense>
+      )}
       <SchemaFromTextDialog
         open={showTextFromSchemaDialog.show}
         onClose={() => {

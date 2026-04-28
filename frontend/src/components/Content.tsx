@@ -984,27 +984,28 @@ const Content: React.FC<ContentProps> = ({
                 Graph Settings
               </ButtonWithToolTip>
             )}
-            {!connectionStatus ? (
-              <SpotlightTarget id='connectbutton' hasPulse={!connectDisabled} indicatorVariant='border'>
-                <ButtonWithToolTip
-                  text={connectDisabled ? 'Please login first to connect' : buttonCaptions.connectToNeo4j}
-                  label={buttonCaptions.connectToNeo4j}
-                  disabled={connectDisabled}
-                  size={isTablet ? 'small' : 'medium'}
-                  className='mr-2!'
-                  onClick={() => setOpenConnection((prev) => ({ ...prev, openPopUp: true }))}
-                  alwaysShowTooltip={true}
-                >
-                  {buttonCaptions.connectToNeo4j}
-                </ButtonWithToolTip>
-              </SpotlightTarget>
-            ) : (
-              showDisconnectButton && (
-                <Button size={isTablet ? 'small' : 'medium'} className='mr-2.5' onClick={disconnect}>
-                  {buttonCaptions.disconnect}
-                </Button>
-              )
-            )}
+            {!EXPLORER_MODE &&
+              (!connectionStatus ? (
+                <SpotlightTarget id='connectbutton' hasPulse={!connectDisabled} indicatorVariant='border'>
+                  <ButtonWithToolTip
+                    text={connectDisabled ? 'Please login first to connect' : buttonCaptions.connectToNeo4j}
+                    label={buttonCaptions.connectToNeo4j}
+                    disabled={connectDisabled}
+                    size={isTablet ? 'small' : 'medium'}
+                    className='mr-2!'
+                    onClick={() => setOpenConnection((prev) => ({ ...prev, openPopUp: true }))}
+                    alwaysShowTooltip={true}
+                  >
+                    {buttonCaptions.connectToNeo4j}
+                  </ButtonWithToolTip>
+                </SpotlightTarget>
+              ) : (
+                showDisconnectButton && (
+                  <Button size={isTablet ? 'small' : 'medium'} className='mr-2.5' onClick={disconnect}>
+                    {buttonCaptions.disconnect}
+                  </Button>
+                )
+              ))}
           </div>
         </Flex>
 

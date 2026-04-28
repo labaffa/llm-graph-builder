@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, validator
 from typing import Optional
 from fastapi import Form, HTTPException
+import os
 
 class Neo4jCredentials(BaseModel):
     """
@@ -49,10 +50,28 @@ async def get_neo4j_credentials(
     Raises:
         HTTPException: If validation fails
     """
-    return Neo4jCredentials(
-        uri=uri,
-        userName=userName,
-        password=password,
-        database=database,
-        email=email
-    )
+    explorer_mode = os.environ.get("EXPLORER_MODE", "false").strip().lower() == "true"
+    if explorer_mode:
+        env_uri = os.environ.get("NEO4J_URI")
+        env_username = os.environ.get("NEO4J_USERNAME")
+        env_password = os.environ.get("NEO4J_PASSWORD")
+        env_database = os.environ.get("NEO4J_DATABASE")
+
+        if not env_uri or not env_username or not env_password:
+            raise HTTPException(
+                status_code=500,
+                detail=(
+                    "EXPLORER_MODE is enabled but Neo4j credentials are missing in environment. "
+                    "Set NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD and optionally NEO4J_DATABASE."
+                ),
+            )
+
+        return Neo4jCredentials(
+            uri=env_uri,
+            userName=env_username,
+            password=env_password,
+            database=env_database,
+            email=email,
+        )
+
+    return Neo4jCredentials(uri=uri, userName=userName, password=password, database=database, email=email)
